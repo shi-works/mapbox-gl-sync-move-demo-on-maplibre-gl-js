@@ -1,0 +1,133 @@
+<html>
+
+<head>
+    <title>地理院ベクトルタイルとCS立体図の乗算合成テスト</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css' rel='stylesheet' />
+    <script src="./mapbox-gl-sync-move.js"></script>
+    <div class="container">
+        <div id="mapBase"></div>
+        <div id="mapOverlay"></div>
+    </div>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .container>div {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #mapOverlay canvas {
+            mix-blend-mode: multiply;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // ベースマップの初期化
+        const mapBase = new maplibregl.Map({
+            container: 'mapBase',
+            style: "building3d.json",
+            center: [137.08297, 37.43345],
+            zoom: 14.05,
+            minZoom: 1,
+            maxZoom: 23,
+            pitch: 0,
+            maxPitch: 85,
+            bearing: 0,
+            hash: true,
+            attributionControl: false
+        });
+
+        // オーバーレイマップのスタイル
+        const overlayStyle = {
+            "version": 8,
+            "sources": {},
+            "layers": []
+        };
+
+        // オーバーレイマップの初期化
+        const mapOverlay = new maplibregl.Map({
+            container: 'mapOverlay',
+            style: overlayStyle,
+            center: [137.08297, 37.43345],
+            zoom: 14.05,
+            minZoom: 1,
+            maxZoom: 23,
+            pitch: 0,
+            maxPitch: 85,
+            bearing: 0,
+            hash: true,
+            attributionControl: false
+        });
+
+        // ズーム・回転
+        mapOverlay.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // フルスクリーンモードのオンオフ
+        mapOverlay.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
+        // 現在位置表示
+        mapOverlay.addControl(new maplibregl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: false
+            },
+            fitBoundsOptions: { maxZoom: 18 },
+            trackUserLocation: true,
+            showUserLocation: true
+        }), 'top-right');
+
+        // スケール表示
+        mapOverlay.addControl(new maplibregl.ScaleControl({
+            maxWidth: 200,
+            unit: 'metric'
+        }));
+
+        // Attributionを折りたたみ表示
+        mapOverlay.addControl(new maplibregl.AttributionControl({
+            compact: true,
+            customAttribution: "<a href='https://maps.gsi.go.jp/vector/' target='_blank'>地理院地図Vector（仮称）</a> | <a href='https://twitter.com/shi__works' target='_blank'>Twitter</a> | <a href='https://github.com/shi-works/mapbox-gl-sync-move-demo-on-maplibre-gl-js' target='_blank'>Github</a>"
+        }));
+
+        // オーバーレイマップのロード
+        mapOverlay.on('load', () => {
+            // CS立体図ソース
+            mapOverlay.addSource("cs", {
+                "type": "raster",
+                "tiles": [
+                    "https://www2.ffpri.go.jp/soilmap/tile/cs_noto/{z}/{x}/{y}.png"
+                ],
+                "attribution": "<a href='https://www2.ffpri.go.jp/soilmap/data-src.html' target='_blank'>森林総合研究所 CS立体図(能登(石川県))</a>"
+            });
+            // CS立体図レイヤ
+            mapOverlay.addLayer({
+                "id": "cs-noto",
+                "type": "raster",
+                "source": "cs",
+                "paint": {
+                    "raster-opacity": 1
+                }
+            });
+        });
+
+        // 2つのマップを合成
+        syncMaps(mapBase, mapOverlay);
+
+    </script>
+</body>
+
+</html>
