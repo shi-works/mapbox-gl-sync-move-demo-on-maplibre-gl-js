@@ -33,10 +33,117 @@
         #mapOverlay canvas {
             mix-blend-mode: multiply;
         }
+
+        #info {
+            padding: 6px 8px;
+            font: 12px/14px Arial, Helvetica, sans-serif;
+            color: navy;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            width: fit-content;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+        }
+
+        .yubi {
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .radio-button-container {
+            display: flex;
+            justify-content: start;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            margin-right: 20px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="info">
+        <details>
+            <summary class="yubi">
+                <strong>ブレンドモード(乗算合成)の種類</strong>
+            </summary>
+            <fieldset>
+                <div class="radio-button-container">
+                    <div class="column">
+                        <div>
+                            <input type="radio" id="multiply" name="blendMode" value="multiply" checked>
+                            <label for="multiply">Multiply</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="normal" name="blendMode" value="normal">
+                            <label for="normal">Normal</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="screen" name="blendMode" value="screen">
+                            <label for="screen">Screen</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="overlay" name="blendMode" value="overlay">
+                            <label for="overlay">Overlay</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="darken" name="blendMode" value="darken">
+                            <label for="darken">Darken</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="lighten" name="blendMode" value="lighten">
+                            <label for="lighten">Lighten</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="color-dodge" name="blendMode" value="color-dodge">
+                            <label for="color-dodge">Color Dodge</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="color-burn" name="blendMode" value="color-burn">
+                            <label for="color-burn">Color Burn</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="hard-light" name="blendMode" value="hard-light">
+                            <label for="hard-light">Hard Light</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="soft-light" name="blendMode" value="soft-light">
+                            <label for="soft-light">Soft Light</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="difference" name="blendMode" value="difference">
+                            <label for="difference">Difference</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="exclusion" name="blendMode" value="exclusion">
+                            <label for="exclusion">Exclusion</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="hue" name="blendMode" value="hue">
+                            <label for="hue">Hue</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="saturation" name="blendMode" value="saturation">
+                            <label for="saturation">Saturation</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="color" name="blendMode" value="color">
+                            <label for="color">Color</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="luminosity" name="blendMode" value="luminosity">
+                            <label for="luminosity">Luminosity</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </details>
+    </div>
     <script type="module">
         // ベースマップのスタイル
         const BaseStyle = {
@@ -65,7 +172,7 @@
         // ベースマップの初期化
         const mapBase = new maplibregl.Map({
             container: 'mapBase',
-            // style: "building3d.json",
+            // style: "building3d.json"
             style: BaseStyle,
             center: [137.08297, 37.43345],
             zoom: 14.05,
@@ -184,6 +291,19 @@
 
         // 2つのマップを合成
         syncMaps(mapBase, mapOverlay);
+
+        // ============================== ブレンドモードの切り替え制御 ==============================
+
+        // ラジオボタン要素を取得
+        var radios = document.querySelectorAll('input[type=radio][name="blendMode"]');
+
+        // 各ラジオボタンにイベントリスナーを設定
+        radios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                var blendMode = this.value;
+                document.querySelector('#mapOverlay canvas').style.mixBlendMode = blendMode;
+            });
+        });
 
     </script>
 </body>
